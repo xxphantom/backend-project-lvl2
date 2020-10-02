@@ -4,6 +4,9 @@
   "description": "Hexlet project (js backend profession)",
   "main": "index.js",
   "type": "module",
+  "bin": {
+    "gendiff": "bin/gendiff.js"
+  },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },

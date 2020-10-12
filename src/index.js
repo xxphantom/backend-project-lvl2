@@ -4,7 +4,7 @@ import _ from 'lodash';
 const deletedFlag = '- ';
 const addedFlag = '+ ';
 const startBracket = '{\n';
-const endBracket = '\n}';
+const endBracket = '\n}\n';
 const parse = (filepath) => {
   const rawJSON = fs.readFileSync(filepath, 'utf8');
   const data = JSON.parse(rawJSON);
@@ -29,6 +29,6 @@ const diff = (filepath1, filepath2) => {
     .map((key) => `${deletedFlag}${key}: ${data1[key]}\n${addedFlag}${key}: ${data2[key]}`);
   const unchangedLines = unchangedKeys
     .map((key) => `  ${[key]}: ${data2[key]}`);
-  return `${startBracket}${[...deletedLines, ...addedLines, ...changedLines, ...unchangedLines].join('\n')}${endBracket}`;
+  return `${startBracket}${[...unchangedLines, ...changedLines, ...deletedLines, ...addedLines].join('\n')}${endBracket}`;
 };
 export default diff;

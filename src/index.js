@@ -3,6 +3,8 @@ import _ from 'lodash';
 
 const deletedFlag = '- ';
 const addedFlag = '+ ';
+const startBracket = '{\n';
+const endBracket = '\n}';
 const parse = (filepath) => {
   const rawJSON = fs.readFileSync(filepath, 'utf8');
   const data = JSON.parse(rawJSON);
@@ -17,21 +19,16 @@ const diff = (filepath1, filepath2) => {
   const addedKeys = _.difference(uniqueKeys, _.keys(data1));
   const changedKeys = _.difference(uniqueKeys, deletedKeys, addedKeys)
     .filter((item) => data1[item] !== data2[item]);
+  const unchangedKeys = _.difference(uniqueKeys, deletedKeys, addedKeys, changedKeys);
 
-  const result = uniqueKeys.map((key) => {
-    if (deletedKeys.includes(key)) {
-      return `${deletedFlag}${key}: ${data1[key]}`;
-    }
-    if (addedKeys.includes(key)) {
-      return `${addedFlag}${key}: ${data2[key]}`;
-    }
-    if (changedKeys.includes(key)) {
-      return `${deletedFlag}${key}: ${data1[key]}\n${addedFlag}${key}: ${data2[key]}`;
-    }
-
-    return `  ${[key]}: ${data2[key]}`;
-  })
-    .join('\n');
-  return `{\n${result}\n}`;
+  const deletedLines = deletedKeys
+    .map((key) => `${deletedFlag}${key}: ${data1[key]}`);
+  const addedLines = addedKeys
+    .map((key) => `${addedFlag}${key}: ${data2[key]}`);
+  const changedLines = changedKeys
+    .map((key) => `${deletedFlag}${key}: ${data1[key]}\n${addedFlag}${key}: ${data2[key]}`);
+  const unchangedLines = unchangedKeys
+    .map((key) => `  ${[key]}: ${data2[key]}`);
+  return `${startBracket}${[...deletedLines, ...addedLines, ...changedLines, ...unchangedLines].join('\n')}${endBracket}`;
 };
 export default diff;

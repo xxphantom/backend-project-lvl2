@@ -1,6 +1,8 @@
 import fs from 'fs';
 import _ from 'lodash';
 
+const deletedFlag = '- ';
+const addedFlag = '+ ';
 const parse = (filepath) => {
   const rawJSON = fs.readFileSync(filepath, 'utf8');
   const data = JSON.parse(rawJSON);
@@ -10,8 +12,6 @@ const parse = (filepath) => {
 const diff = (filepath1, filepath2) => {
   const data1 = parse(filepath1);
   const data2 = parse(filepath2);
-  const deletedFlag = '- ';
-  const addedFlag = '+ ';
   const uniqueKeys = _.union(_.keys(data1), _.keys(data2));
   const deletedKeys = _.difference(uniqueKeys, _.keys(data2));
   const addedKeys = _.difference(uniqueKeys, _.keys(data1));

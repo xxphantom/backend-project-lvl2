@@ -1,15 +1,10 @@
-import fs from 'fs';
 import _ from 'lodash';
+import parse from './parsers.js';
 
 const deletedFlag = '- ';
 const addedFlag = '+ ';
 const startBracket = '{\n';
 const endBracket = '\n}\n';
-const parse = (filepath) => {
-  const rawJSON = fs.readFileSync(filepath, 'utf8');
-  const data = JSON.parse(rawJSON);
-  return data;
-};
 
 const diff = (filepath1, filepath2) => {
   const data1 = parse(filepath1);

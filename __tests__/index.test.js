@@ -26,3 +26,9 @@ test('flatYamlJsonDiff', () => {
   const diff = gendiff(getFixturePath('before.yml'), getFixturePath('after.json'));
   expect(diff).toBe(readFile(expected));
 });
+
+test('flatJson without ".json" extname Diff', () => {
+  const expected = 'flatDiff.txt';
+  const diff = gendiff(getFixturePath('before.yml'), getFixturePath('after.json'));
+  expect(diff).toBe(readFile(expected));
+});

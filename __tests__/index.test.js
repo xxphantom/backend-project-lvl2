@@ -9,26 +9,13 @@ const __dirname = path.dirname(__filename);
 const getFixturePath = (filename) => path.join(__dirname, '..', '__fixtures__', filename);
 const readFile = (filename) => fs.readFileSync(getFixturePath(filename), 'utf8');
 
-test('flatJsonDiff', () => {
-  const expected = 'flatDiff.txt';
-  const diff = gendiff(getFixturePath('before.json'), getFixturePath('after.json'));
-  expect(diff).toBe(readFile(expected));
-});
-
-test('flatYamlDiff', () => {
-  const expected = 'flatDiff.txt';
-  const diff = gendiff(getFixturePath('before.yml'), getFixturePath('after.yml'));
-  expect(diff).toBe(readFile(expected));
-});
-
-test('flatYamlJsonDiff', () => {
-  const expected = 'flatDiff.txt';
-  const diff = gendiff(getFixturePath('before.yml'), getFixturePath('after.json'));
-  expect(diff).toBe(readFile(expected));
-});
-
-test('flatJson without ".json" extname Diff', () => {
-  const expected = 'flatDiff.txt';
-  const diff = gendiff(getFixturePath('before.yml'), getFixturePath('after.json'));
+test.each([
+  ['flatDiff.txt', 'before.json', 'after.json'],
+  ['flatDiff.txt', 'before.yml', 'after.yml'],
+  ['flatDiff.txt', 'before', 'after'],
+  ['flatDiff.txt', 'before.ini', 'after.ini'],
+  ['flatDiff.txt', 'before.json', 'after.yml'],
+])('%s (%s, %s)', (expected, before, after) => {
+  const diff = gendiff(getFixturePath(before), getFixturePath(after));
   expect(diff).toBe(readFile(expected));
 });

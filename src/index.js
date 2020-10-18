@@ -1,47 +1,59 @@
 import _ from 'lodash';
 import parse from './parsers.js';
 
-const formatter = (astTree) => {
+const stylish = (astTree) => {
   const indentLength = 4;
-  const delFlag = '- ';
-  const addFlag = '+ ';
   const space = ' ';
+  const openBracket = '{';
+  const closeBracket = '}';
 
   const iter = (ast, deep = 0) => {
-    const key = ast[0];
+    const propertyName = ast[0];
     const type = ast[1];
     const body = ast[2];
     const bodyChanged = ast[3];
-    const spaces = space.repeat(deep);
+    const flag = {
+      deletedProperty: ['- '],
+      addedProperty: ['+ '],
+      changedProperty: ['- ', '+ '],
+      unchangedProperty: [''],
+      nodeProperty: [''],
+    };
+    const indent = space.repeat(deep - flag[type][0].length);
 
-    const format = {
-      node: () => {
-        const nodeName = deep === 0 ? '' : `${spaces}${key}: `;
-        return `${nodeName}{\n${body.map((a) => iter(a, deep + indentLength)).join('')}${space.repeat(deep)}}\n`;
-      },
-      deleted: () => `${spaces.slice(0, -delFlag.length)}${delFlag}${key}: ${format.complex(body, deep + indentLength)}\n`,
-      added: () => `${spaces.slice(0, -addFlag.length)}${addFlag}${key}: ${format.complex(body, deep + indentLength)}\n`,
-      changed: () => `${spaces.slice(0, -addFlag.length)}${delFlag}${key}: ${format.complex(body, deep + indentLength)}\n${spaces.slice(0, -delFlag.length)}${addFlag}${key}: ${format.complex(bodyChanged, deep + indentLength)}\n`,
-      unchanged: () => `${spaces}${key}: ${body}\n`,
-      complex: (iBody, iDeep) => {
-        if (_.isObject(iBody)) {
-          return `{${Object.entries(iBody).map(([ikey, value]) => {
-            if (_.isObject(value)) {
-              return `\n${space.repeat(iDeep)}${ikey}: ${format.complex(value, iDeep + indentLength)}`;
-            }
-            return `\n${space.repeat(iDeep)}${ikey}: ${value}`;
-          }).join('')}\n${space.repeat(iDeep - indentLength)}}`;
-        }
-        return iBody;
-      },
+    const formatNestedProperty = (value, deepCount) => {
+      if (!_.isObject(value)) {
+        return value;
+      }
+      const indentForBracket = space.repeat(deepCount - indentLength);
+      const nestedProperties = Object.entries(value).map(([pName, pValue]) => {
+        const pIndent = space.repeat(deepCount);
+        const nestedValue = formatNestedProperty(pValue, deepCount + indentLength);
+        return `\n${pIndent}${pName}: ${nestedValue}`;
+      }).join('');
+      return `${openBracket}${nestedProperties}\n${indentForBracket}${closeBracket}`;
     };
 
-    return format[type](ast, deep);
+    if (type === 'nodeProperty') {
+      const nodeName = deep === 0 ? '' : `${indent}${propertyName}: `;
+      const nestedProperties = body.map((a) => iter(a, deep + indentLength)).join('');
+      return `${nodeName}${openBracket}\n${nestedProperties}${indent}${closeBracket}\n`;
+    }
+
+    const value = formatNestedProperty(body, deep + indentLength);
+
+    if (type === 'changedProperty') {
+      const valueAfter = formatNestedProperty(bodyChanged, deep + indentLength);
+      const flagBefore = flag[type][0];
+      const flagAfter = flag[type][1];
+      return `${indent}${flagBefore}${propertyName}: ${value}\n${indent}${flagAfter}${propertyName}: ${valueAfter}\n`;
+    }
+    return `${indent}${flag[type]}${propertyName}: ${value}\n`;
   };
   return iter(astTree);
 };
 
-const diff = (filepath1, filepath2) => {
+const diff = (filepath1, filepath2, format) => {
   const dataBefore = parse(filepath1);
   const dataAfter = parse(filepath2);
 
@@ -56,22 +68,25 @@ const diff = (filepath1, filepath2) => {
 
     const result = uniqueKeys.map((key) => {
       if (nodesKeys.includes(key)) {
-        return [key, 'node', iter(data1[key], data2[key])];
+        return [key, 'nodeProperty', iter(data1[key], data2[key])];
       }
       if (deletedKeys.includes(key)) {
-        return [key, 'deleted', data1[key]];
+        return [key, 'deletedProperty', data1[key]];
       }
       if (addedKeys.includes(key)) {
-        return [key, 'added', data2[key]];
+        return [key, 'addedProperty', data2[key]];
       }
       if (changedKeys.includes(key)) {
-        return [key, 'changed', data1[key], data2[key]];
+        return [key, 'changedProperty', data1[key], data2[key]];
       }
-      return [key, 'unchanged', data1[key]];
+      return [key, 'unchangedProperty', data1[key]];
     });
     return result;
   };
-  return formatter(['', 'node', iter(dataBefore, dataAfter)]);
+  if (format === 'stylish') {
+    return stylish(['', 'nodeProperty', iter(dataBefore, dataAfter)]);
+  }
+  return `error: incorrect format: ${format}`;
 };
 
 export default diff;

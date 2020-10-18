@@ -10,12 +10,10 @@ const getFixturePath = (filename) => path.join(__dirname, '..', '__fixtures__', 
 const readFile = (filename) => fs.readFileSync(getFixturePath(filename), 'utf8');
 
 test.each([
-  ['flatDiff.txt', 'before.json', 'after.json'],
-  ['flatDiff.txt', 'before.yml', 'after.yml'],
-  ['flatDiff.txt', 'before', 'after'],
-  ['flatDiff.txt', 'before.ini', 'after.ini'],
-  ['flatDiff.txt', 'before.json', 'after.yml'],
+  ['diff.txt', 'before.json', 'after.json'],
+  ['diff.txt', 'before.ini', 'after.ini'],
+  ['diff.txt', 'before.yml', 'after.yml'],
 ])('%s (%s, %s)', (expected, before, after) => {
-  const diff = gendiff(getFixturePath(before), getFixturePath(after));
+  const diff = gendiff(getFixturePath(before), getFixturePath(after), 'stylish');
   expect(diff).toBe(readFile(expected));
 });

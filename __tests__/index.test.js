@@ -17,3 +17,12 @@ test.each([
   const diff = gendiff(getFixturePath(before), getFixturePath(after), 'stylish');
   expect(diff).toBe(readFile(expected));
 });
+
+test.each([
+  ['plainDiff.txt', 'before.json', 'after.json'],
+  ['plainDiff.txt', 'before.ini', 'after.ini'],
+  ['plainDiff.txt', 'before.yml', 'after.yml'],
+])('%s (%s, %s)', (expected, before, after) => {
+  const diff = gendiff(getFixturePath(before), getFixturePath(after), 'plain');
+  expect(diff).toBe(readFile(expected));
+});

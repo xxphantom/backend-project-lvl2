@@ -14,23 +14,20 @@ const diff = (filepath1, filepath2, format = 'stylish') => {
       .filter((key) => (_.isObject(data1[key]) && _.isObject(data2[key])));
     const changedKeys = _.difference(uniqueKeys, deletedKeys, addedKeys, nodesKeys)
       .filter((key) => data1[key] !== data2[key]);
+    const unchangedKeys = _.difference(uniqueKeys, deletedKeys, addedKeys, nodesKeys)
+      .filter((key) => data1[key] === data2[key]);
 
-    const result = uniqueKeys.map((key) => {
-      if (nodesKeys.includes(key)) {
-        return [key, 'nodeProperty', iter(data1[key], data2[key])];
-      }
-      if (deletedKeys.includes(key)) {
-        return [key, 'deletedProperty', data1[key]];
-      }
-      if (addedKeys.includes(key)) {
-        return [key, 'addedProperty', data2[key]];
-      }
-      if (changedKeys.includes(key)) {
-        return [key, 'changedProperty', data1[key], data2[key]];
-      }
-      return [key, 'unchangedProperty', data1[key]];
-    });
-    return result;
+    const deletedProp = deletedKeys
+      .map((key) => [key, 'deletedProperty', data1[key]]);
+    const addedProp = addedKeys
+      .map((key) => [key, 'addedProperty', data2[key]]);
+    const changedProp = changedKeys
+      .map((key) => [key, 'changedProperty', data1[key], data2[key]]);
+    const unchangedProp = unchangedKeys
+      .map((key) => [key, 'unchangedProperty', data1[key]]);
+    const nodesProp = nodesKeys
+      .map((key) => [key, 'nodeProperty', iter(data1[key], data2[key])]);
+    return [...deletedProp, ...addedProp, ...changedProp, ...unchangedProp, ...nodesProp].sort();
   };
   const resultAstTree = ['', 'nodeProperty', iter(dataBefore, dataAfter)];
   const formatter = getFormatter(format);

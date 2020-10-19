@@ -7,4 +7,4 @@
 
 [![Test Coverage](https://api.codeclimate.com/v1/badges/6b0a6d44d6ba2fcc7e67/test_coverage)](https://codeclimate.com/github/xxphantom/backend-project-lvl2/test_coverage)
 
-[![asciicast](https://asciinema.org/a/366334.svg)](https://asciinema.org/a/366334)
+[![asciicast](https://asciinema.org/a/366335.svg)](https://asciinema.org/a/366335)

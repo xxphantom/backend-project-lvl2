@@ -11,6 +11,7 @@ const flag = {
   nodeProperty: '',
   changedProperty: { before: '- ', after: '+ ', length: 2 },
 };
+
 const formatNestedProperty = (data, deepCount) => {
   if (!_.isObject(data)) {
     return data;
@@ -26,14 +27,11 @@ const formatNestedProperty = (data, deepCount) => {
 
 const stylish = (astTree) => {
   const iter = (ast, deep = 0) => {
-    const propertyName = ast[0];
-    const nodeType = ast[1];
-    const body = ast[2];
-    const bodyChanged = ast[3];
+    const [propertyName, nodeType, body, bodyChanged] = ast;
     const indent = space.repeat(deep - flag[nodeType].length);
 
     if (nodeType === 'nodeProperty') {
-      const nodeName = deep === 0 ? '' : `${indent}${propertyName}: `;
+      const nodeName = propertyName === 'root' ? '' : `${indent}${propertyName}: `;
       const nestedProperties = body.map((a) => iter(a, deep + indentLength)).join('');
       return `${nodeName}${openBracket}\n${nestedProperties}${indent}${closeBracket}\n`;
     }

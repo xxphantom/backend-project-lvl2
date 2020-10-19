@@ -17,19 +17,20 @@ const diff = (filepath1, filepath2, format = 'stylish') => {
     const unchangedKeys = _.difference(uniqueKeys, deletedKeys, addedKeys, nodesKeys)
       .filter((key) => data1[key] === data2[key]);
 
-    const deletedProp = deletedKeys
+    const deletedProps = deletedKeys
       .map((key) => [key, 'deletedProperty', data1[key]]);
-    const addedProp = addedKeys
+    const addedProps = addedKeys
       .map((key) => [key, 'addedProperty', data2[key]]);
-    const changedProp = changedKeys
+    const changedProps = changedKeys
       .map((key) => [key, 'changedProperty', data1[key], data2[key]]);
-    const unchangedProp = unchangedKeys
+    const unchangedProps = unchangedKeys
       .map((key) => [key, 'unchangedProperty', data1[key]]);
-    const nodesProp = nodesKeys
+    const nodesProps = nodesKeys
       .map((key) => [key, 'nodeProperty', iter(data1[key], data2[key])]);
-    return [...deletedProp, ...addedProp, ...changedProp, ...unchangedProp, ...nodesProp].sort();
+    return [...deletedProps, ...addedProps, ...changedProps, ...unchangedProps, ...nodesProps]
+      .sort();
   };
-  const resultAstTree = ['', 'nodeProperty', iter(dataBefore, dataAfter)];
+  const resultAstTree = ['root', 'nodeProperty', iter(dataBefore, dataAfter)];
   const formatter = getFormatter(format);
 
   if (!formatter) {

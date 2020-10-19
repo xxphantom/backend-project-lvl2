@@ -18,7 +18,7 @@ const parse = (filepath) => {
   const extname = path.extname(filepath) || '.json';
   const rawData = getData(filepath);
   const parser = getParser[extname];
-  const data = parser(rawData);
-  return data;
+  const parsedData = parser(rawData);
+  return parsedData;
 };
 export default parse;

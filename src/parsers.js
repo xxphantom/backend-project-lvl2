@@ -3,16 +3,22 @@ import path from 'path';
 import yaml from 'js-yaml';
 import ini from 'ini';
 
-const parsers = {
+const getParser = {
   '.yml': (yamlData) => yaml.safeLoad(yamlData),
   '.json': (jsonData) => JSON.parse(jsonData),
   '.ini': (iniData) => ini.parse(iniData),
 };
 
-const parse = (filepath) => {
+const getData = (filepath) => {
   const rawData = fs.readFileSync(filepath, 'utf8');
+  return rawData;
+};
+
+const parse = (filepath) => {
   const extname = path.extname(filepath) || '.json';
-  const data = parsers[extname](rawData);
+  const rawData = getData(filepath);
+  const parser = getParser[extname];
+  const data = parser(rawData);
   return data;
 };
 export default parse;

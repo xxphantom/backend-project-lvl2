@@ -1,59 +1,8 @@
 import _ from 'lodash';
 import parse from './parsers.js';
+import getFormatter from './formatters/index.js';
 
-const stylish = (astTree) => {
-  const indentLength = 4;
-  const space = ' ';
-  const openBracket = '{';
-  const closeBracket = '}';
-
-  const iter = (ast, deep = 0) => {
-    const propertyName = ast[0];
-    const type = ast[1];
-    const body = ast[2];
-    const bodyChanged = ast[3];
-    const flag = {
-      deletedProperty: ['- '],
-      addedProperty: ['+ '],
-      changedProperty: ['- ', '+ '],
-      unchangedProperty: [''],
-      nodeProperty: [''],
-    };
-    const indent = space.repeat(deep - flag[type][0].length);
-
-    const formatNestedProperty = (value, deepCount) => {
-      if (!_.isObject(value)) {
-        return value;
-      }
-      const indentForBracket = space.repeat(deepCount - indentLength);
-      const nestedProperties = Object.entries(value).map(([pName, pValue]) => {
-        const pIndent = space.repeat(deepCount);
-        const nestedValue = formatNestedProperty(pValue, deepCount + indentLength);
-        return `\n${pIndent}${pName}: ${nestedValue}`;
-      }).join('');
-      return `${openBracket}${nestedProperties}\n${indentForBracket}${closeBracket}`;
-    };
-
-    if (type === 'nodeProperty') {
-      const nodeName = deep === 0 ? '' : `${indent}${propertyName}: `;
-      const nestedProperties = body.map((a) => iter(a, deep + indentLength)).join('');
-      return `${nodeName}${openBracket}\n${nestedProperties}${indent}${closeBracket}\n`;
-    }
-
-    const value = formatNestedProperty(body, deep + indentLength);
-
-    if (type === 'changedProperty') {
-      const valueAfter = formatNestedProperty(bodyChanged, deep + indentLength);
-      const flagBefore = flag[type][0];
-      const flagAfter = flag[type][1];
-      return `${indent}${flagBefore}${propertyName}: ${value}\n${indent}${flagAfter}${propertyName}: ${valueAfter}\n`;
-    }
-    return `${indent}${flag[type]}${propertyName}: ${value}\n`;
-  };
-  return iter(astTree);
-};
-
-const diff = (filepath1, filepath2, format) => {
+const diff = (filepath1, filepath2, format = 'stylish') => {
   const dataBefore = parse(filepath1);
   const dataAfter = parse(filepath2);
 
@@ -83,10 +32,13 @@ const diff = (filepath1, filepath2, format) => {
     });
     return result;
   };
-  if (format === 'stylish') {
-    return stylish(['', 'nodeProperty', iter(dataBefore, dataAfter)]);
+  const resultAstTree = ['', 'nodeProperty', iter(dataBefore, dataAfter)];
+  const formatter = getFormatter(format);
+
+  if (!formatter) {
+    return `error: incorrect format: ${format}`;
   }
-  return `error: incorrect format: ${format}`;
+  return formatter(resultAstTree);
 };
 
 export default diff;

@@ -6,7 +6,6 @@ import ini from 'ini';
 const getParser = {
   '.yml': (yamlData) => yaml.safeLoad(yamlData),
   '.json': (jsonData) => JSON.parse(jsonData),
-  '.ini': (iniData) => ini.parse(iniData),
 };
 
 const getData = (filepath) => {

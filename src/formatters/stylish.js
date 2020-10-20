@@ -5,11 +5,11 @@ const space = ' ';
 const openBracket = '{';
 const closeBracket = '}';
 const flag = {
-  deletedProperty: '- ',
-  addedProperty: '+ ',
-  unchangedProperty: '',
-  nodeProperty: '',
-  changedProperty: { before: '- ', after: '+ ', length: 2 },
+  deleted: '- ',
+  added: '+ ',
+  unchanged: '',
+  node: '',
+  changed: { before: '- ', after: '+ ', length: 2 },
 };
 
 const formatNestedProp = (data, deepCount) => {
@@ -18,7 +18,8 @@ const formatNestedProp = (data, deepCount) => {
   }
   const openIndent = space.repeat(deepCount);
   const closeIndent = space.repeat(deepCount - indentLength);
-  const nestedProperties = Object.entries(data).map(([name, value]) => `\n${openIndent}${name}: ${formatNestedProp(value, deepCount + indentLength)}`).join('');
+  const nestedProperties = Object.entries(data)
+    .map(([name, value]) => `\n${openIndent}${name}: ${formatNestedProp(value, deepCount + indentLength)}`).join('');
   return `${openBracket}${nestedProperties}\n${closeIndent}${closeBracket}`;
 };
 
@@ -28,10 +29,10 @@ const stylish = (astTree) => {
     const indent = space.repeat(deep - flag[nodeType].length);
 
     switch (nodeType) {
-      case 'nodeProperty':
+      case 'node':
         return `${indent}${propName}: ${openBracket}\n${body.map((a) => iter(a, deep + indentLength)).join('')}${indent}${closeBracket}\n`;
 
-      case 'changedProperty':
+      case 'changed':
         return `${indent}${flag[nodeType].before}${propName}: ${formatNestedProp(body, deep + indentLength)}\n${indent}${flag[nodeType].after}${propName}: ${formatNestedProp(changedBody, deep + indentLength)}\n`;
 
       default: return `${indent}${flag[nodeType]}${propName}: ${formatNestedProp(body, deep + indentLength)}\n`;

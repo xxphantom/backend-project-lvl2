@@ -1,8 +1,8 @@
 import _ from 'lodash';
 
 const flag = {
-  deletedProperty: 'removed',
-  addedProperty: 'added with value:',
+  deleted: 'removed',
+  added: 'added with value:',
 };
 const formatNestedProperty = (body) => {
   if (typeof body === 'string') {
@@ -17,14 +17,14 @@ const plain = (astTree) => {
     const chainNodeNames = [parentName, propertyName].filter((n) => n !== '').join('.');
 
     switch (nodeType) {
-      case 'unchangedProperty':
+      case 'unchanged':
         return '';
-      case 'nodeProperty':
+      case 'node':
         return body.map((a) => iter(a, `${chainNodeNames}`)).join('');
-      case 'changedProperty':
+      case 'changed':
         return `Property '${chainNodeNames}' was updated. From${formatNestedProperty(body)} to${formatNestedProperty(bodyChanged)}\n`;
       default:
-        return `Property '${chainNodeNames}' was ${flag[nodeType]}${nodeType === 'deletedProperty' ? '' : formatNestedProperty(body)}\n`;
+        return `Property '${chainNodeNames}' was ${flag[nodeType]}${nodeType === 'deleted' ? '' : formatNestedProperty(body)}\n`;
     }
   };
   return astTree.map((node) => iter(node)).join('');

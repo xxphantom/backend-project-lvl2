@@ -30,7 +30,7 @@ const diff = (filepath1, filepath2, format = 'stylish') => {
     return [...deletedProps, ...addedProps, ...changedProps, ...unchangedProps, ...nodesProps]
       .sort();
   };
-  const resultAstTree = ['root', 'nodeProperty', iter(dataBefore, dataAfter)];
+  const resultAstTree = iter(dataBefore, dataAfter);
   const formatter = getFormatter(format);
 
   if (!formatter) {

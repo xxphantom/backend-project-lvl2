@@ -14,24 +14,19 @@ const formatNestedProperty = (body) => {
 const plain = (astTree) => {
   const iter = (ast, parentName = '') => {
     const [propertyName, nodeType, body, bodyChanged] = ast;
-    if (nodeType === 'unchangedProperty') {
-      return '';
-    }
-    const chainNodeNames = [parentName, propertyName].filter((n) => n !== '' && n !== 'root').join('.');
+    const chainNodeNames = [parentName, propertyName].filter((n) => n !== '').join('.');
 
-    if (nodeType === 'nodeProperty') {
-      const nestedProperties = body.map((a) => iter(a, `${chainNodeNames}`)).join('');
-      return `${nestedProperties}`;
+    switch (nodeType) {
+      case 'unchangedProperty':
+        return '';
+      case 'nodeProperty':
+        return body.map((a) => iter(a, `${chainNodeNames}`)).join('');
+      case 'changedProperty':
+        return `Property '${chainNodeNames}' was updated. From${formatNestedProperty(body)} to${formatNestedProperty(bodyChanged)}\n`;
+      default:
+        return `Property '${chainNodeNames}' was ${flag[nodeType]}${nodeType === 'deletedProperty' ? '' : formatNestedProperty(body)}\n`;
     }
-
-    const value = formatNestedProperty(body);
-
-    if (nodeType === 'changedProperty') {
-      const valueAfter = formatNestedProperty(bodyChanged);
-      return `Property '${chainNodeNames}' was updated. From${value} to${valueAfter}\n`;
-    }
-    return `Property '${chainNodeNames}' was ${flag[nodeType]}${nodeType === 'deletedProperty' ? '' : value}\n`;
   };
-  return iter(astTree);
+  return astTree.map((node) => iter(node)).join('');
 };
 export default plain;

@@ -1,7 +1,6 @@
 import fs from 'fs';
 import path from 'path';
 import yaml from 'js-yaml';
-import ini from 'ini';
 
 const getParser = {
   '.yml': (yamlData) => yaml.safeLoad(yamlData),

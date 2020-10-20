@@ -17,26 +17,18 @@ const diff = (filepath1, filepath2, format = 'stylish') => {
     const unchangedKeys = _.difference(uniqueKeys, deletedKeys, addedKeys, nodesKeys)
       .filter((key) => data1[key] === data2[key]);
 
-    const deletedProps = deletedKeys
-      .map((key) => [key, 'deletedProperty', data1[key]]);
-    const addedProps = addedKeys
-      .map((key) => [key, 'addedProperty', data2[key]]);
-    const changedProps = changedKeys
-      .map((key) => [key, 'changedProperty', data1[key], data2[key]]);
-    const unchangedProps = unchangedKeys
-      .map((key) => [key, 'unchangedProperty', data1[key]]);
-    const nodesProps = nodesKeys
-      .map((key) => [key, 'nodeProperty', iter(data1[key], data2[key])]);
+    const deletedProps = deletedKeys.map((key) => [key, 'deletedProperty', data1[key]]);
+    const addedProps = addedKeys.map((key) => [key, 'addedProperty', data2[key]]);
+    const changedProps = changedKeys.map((key) => [key, 'changedProperty', data1[key], data2[key]]);
+    const unchangedProps = unchangedKeys.map((key) => [key, 'unchangedProperty', data1[key]]);
+    const nodesProps = nodesKeys.map((key) => [key, 'nodeProperty', iter(data1[key], data2[key])]);
     return [...deletedProps, ...addedProps, ...changedProps, ...unchangedProps, ...nodesProps]
       .sort();
   };
   const resultAstTree = iter(dataBefore, dataAfter);
   const formatter = getFormatter(format);
 
-  if (!formatter) {
-    return `error: incorrect format: ${format}`;
-  }
-  return formatter(resultAstTree);
+  return formatter ? formatter(resultAstTree) : `error: incorrect format: ${format}`;
 };
 
 export default diff;

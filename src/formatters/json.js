@@ -9,7 +9,7 @@ const json = (astTree) => {
 
     switch (nodeType) {
       case 'node':
-        obj.nestedProperies = body.map((a) => iter(a));
+        obj.children = body.map((a) => iter(a));
         break;
       case 'changed':
         obj.value1 = body;

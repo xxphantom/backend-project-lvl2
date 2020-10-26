@@ -4,9 +4,10 @@ import parse from './parsers.js';
 import getFormatter from './formatters/index.js';
 import genDiffAst from './genDiffAst.js';
 
+const dataType = { json: 'json', yml: 'yaml', yaml: 'yaml' };
+
 const getData = (filepath) => fs.readFileSync(filepath, 'utf8');
 const getDataType = (filepath) => {
-  const dataType = { json: 'json', yml: 'yaml', yaml: 'yaml' };
   const fileExtension = path.extname(filepath).slice(1);
   return dataType[fileExtension];
 };

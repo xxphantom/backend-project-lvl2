@@ -1,6 +1,6 @@
 import _ from 'lodash';
 
-const flag = {
+const flags = {
   deleted: 'removed',
   added: 'added with value:',
 };
@@ -26,9 +26,9 @@ const formatPlain = (astTree) => {
       case 'changed':
         return `Property '${chainNodeNames}' was updated. From${formatNestedProp(value1)} to${formatNestedProp(value2)}\n`;
       case 'deleted':
-        return `Property '${chainNodeNames}' was ${flag[nodeType]}\n`;
+        return `Property '${chainNodeNames}' was ${flags[nodeType]}\n`;
       case 'added':
-        return `Property '${chainNodeNames}' was ${flag[nodeType]}${formatNestedProp(value2)}\n`;
+        return `Property '${chainNodeNames}' was ${flags[nodeType]}${formatNestedProp(value2)}\n`;
       default:
         throw new Error(`Unexpected nodeType: ${nodeType}`);
     }

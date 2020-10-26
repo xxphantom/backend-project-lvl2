@@ -7,14 +7,14 @@ import gendiff from '../src/index.js';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const getFixturePath = (filename) => path.join(__dirname, '..', '__fixtures__', filename);
-const readFile = (filename) => fs.readFileSync(getFixturePath(filename), 'utf8');
+const readFixture = (filename) => fs.readFileSync(getFixturePath(filename), 'utf8');
 
 test.each([
   ['stylishDiff.txt', 'before.json', 'after.json'],
   ['stylishDiff.txt', 'before.yml', 'after.yml'],
 ])('%s (%s, %s)', (expected, before, after) => {
   const diff = gendiff(getFixturePath(before), getFixturePath(after), 'stylish');
-  expect(diff).toBe(readFile(expected));
+  expect(diff).toBe(readFixture(expected));
 });
 
 test.each([
@@ -22,7 +22,7 @@ test.each([
   ['plainDiff.txt', 'before.yml', 'after.yml'],
 ])('%s (%s, %s)', (expected, before, after) => {
   const diff = gendiff(getFixturePath(before), getFixturePath(after), 'plain');
-  expect(diff).toBe(readFile(expected));
+  expect(diff).toBe(readFixture(expected));
 });
 
 test.each([
@@ -30,5 +30,5 @@ test.each([
   ['jsonDiff.txt', 'before.yml', 'after.yml'],
 ])('%s (%s, %s)', (expected, before, after) => {
   const diff = gendiff(getFixturePath(before), getFixturePath(after), 'json');
-  expect(diff).toBe(readFile(expected));
+  expect(diff).toBe(readFixture(expected));
 });

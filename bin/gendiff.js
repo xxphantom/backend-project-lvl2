@@ -1,8 +1,7 @@
 #!/usr/bin/env node
-
 import program from 'commander';
-import path from 'path';
 import process from 'process';
+import path from 'path';
 import diff from '../src/index.js';
 
 const version = '1.0.0';

@@ -4,29 +4,35 @@ const flag = {
   deleted: 'removed',
   added: 'added with value:',
 };
-const formatNestedProperty = (body) => {
+const formatNestedProp = (body) => {
   if (typeof body === 'string') {
     return ` '${body}'`;
   }
   return _.isObject(body) ? ' [complex value]' : ` ${body}`;
 };
 
-const plain = (astTree) => {
-  const iter = (ast, parentName = '') => {
-    const [propertyName, nodeType, body, bodyChanged] = ast;
-    const chainNodeNames = [parentName, propertyName].filter((n) => n !== '').join('.');
+const formatPlain = (astTree) => {
+  const iter = (ast, parentKey = '') => {
+    const {
+      key, nodeType, value1, value2, children,
+    } = ast;
+    const chainNodeNames = [parentKey, key].filter((n) => n !== '').join('.');
 
     switch (nodeType) {
       case 'unchanged':
         return '';
-      case 'node':
-        return body.map((a) => iter(a, `${chainNodeNames}`)).join('');
+      case 'nested':
+        return children.map((a) => iter(a, `${chainNodeNames}`)).join('');
       case 'changed':
-        return `Property '${chainNodeNames}' was updated. From${formatNestedProperty(body)} to${formatNestedProperty(bodyChanged)}\n`;
+        return `Property '${chainNodeNames}' was updated. From${formatNestedProp(value1)} to${formatNestedProp(value2)}\n`;
+      case 'deleted':
+        return `Property '${chainNodeNames}' was ${flag[nodeType]}\n`;
+      case 'added':
+        return `Property '${chainNodeNames}' was ${flag[nodeType]}${formatNestedProp(value2)}\n`;
       default:
-        return `Property '${chainNodeNames}' was ${flag[nodeType]}${nodeType === 'deleted' ? '' : formatNestedProperty(body)}\n`;
+        throw new Error(`Unexpected nodeType: ${nodeType}`);
     }
   };
   return astTree.map((node) => iter(node)).join('');
 };
-export default plain;
+export default formatPlain;

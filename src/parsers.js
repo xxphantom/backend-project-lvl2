@@ -1,12 +1,15 @@
 import yaml from 'js-yaml';
 
 const getParser = {
-  '.yml': (yamlData) => yaml.safeLoad(yamlData),
-  '.json': (jsonData) => JSON.parse(jsonData),
+  yaml: yaml.safeLoad,
+  json: JSON.parse,
 };
 
-const parse = (data, fileFormat) => {
-  const parser = getParser[fileFormat];
+const parse = (data, type) => {
+  if (!type) {
+    throw new Error('unexpected input format');
+  }
+  const parser = getParser[type];
   const parsedData = parser(data);
   return parsedData;
 };

@@ -8,27 +8,12 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const getFixturePath = (filename) => path.join(__dirname, '..', '__fixtures__', filename);
 const readFixture = (filename) => fs.readFileSync(getFixturePath(filename), 'utf8');
+const formatters = ['stylish', 'plain', 'json'];
+const formats = ['json', 'yml'];
+const testCombinations = formatters
+  .flatMap((formatter) => formats.map((format) => [formatter, format]));
 
-test.each([
-  ['stylishDiff.txt', 'before.json', 'after.json'],
-  ['stylishDiff.txt', 'before.yml', 'after.yml'],
-])('%s (%s, %s)', (expected, before, after) => {
-  const diff = gendiff(getFixturePath(before), getFixturePath(after), 'stylish');
-  expect(diff).toBe(readFixture(expected));
-});
-
-test.each([
-  ['plainDiff.txt', 'before.json', 'after.json'],
-  ['plainDiff.txt', 'before.yml', 'after.yml'],
-])('%s (%s, %s)', (expected, before, after) => {
-  const diff = gendiff(getFixturePath(before), getFixturePath(after), 'plain');
-  expect(diff).toBe(readFixture(expected));
-});
-
-test.each([
-  ['jsonDiff.txt', 'before.json', 'after.json'],
-  ['jsonDiff.txt', 'before.yml', 'after.yml'],
-])('%s (%s, %s)', (expected, before, after) => {
-  const diff = gendiff(getFixturePath(before), getFixturePath(after), 'json');
-  expect(diff).toBe(readFixture(expected));
+test.each(testCombinations)('Diff in %s from %s', (formatter, format) => {
+  const diff = gendiff(getFixturePath(`before.${format}`), getFixturePath(`after.${format}`), formatter);
+  expect(diff).toBe(readFixture(`${formatter}Diff.txt`));
 });

@@ -8,7 +8,7 @@ const parsers = {
 
 const parse = (data, format) => {
   if (!format) {
-    throw new Error('unexpected input format');
+    throw new Error(`unexpected input format: ${format}`);
   }
   const parsedData = parsers[format](data);
   return parsedData;

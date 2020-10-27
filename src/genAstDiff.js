@@ -3,7 +3,7 @@ import _ from 'lodash';
 const genAstDiff = (data1, data2) => {
   const uniqueKeys = _.union(_.keys(data2), _.keys(data1));
   const nodeKeys = uniqueKeys
-    .filter((key) => (_.isObject(data1[key]) && _.isObject(data2[key])));
+    .filter((key) => (_.isPlainObject(data1[key]) && _.isPlainObject(data2[key])));
   const deletedKeys = _.difference(uniqueKeys, _.keys(data2));
   const addedKeys = _.difference(uniqueKeys, _.keys(data1));
   const changedKeys = _.difference(uniqueKeys, deletedKeys, addedKeys, nodeKeys)

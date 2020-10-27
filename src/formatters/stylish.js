@@ -1,27 +1,17 @@
 import _ from 'lodash';
 
-const indentLength = 4;
-const space = ' ';
-const openBracket = '{';
-const closeBracket = '}';
-const flag = {
+const flags = {
   deleted: '- ',
   added: '+ ',
-  unchanged: '',
-  nested: '',
-  changed: { before: '- ', after: '+ ', length: 2 },
 };
-const buildIndent = (depth, flagLength = 0) => space.repeat(depth * indentLength - flagLength);
-
+const genIndent = (depth, flag = '', indentStep = 4) => `${' '.repeat(depth * indentStep - flag.length)}${flag}`;
 const formatNestedProp = (data, depth) => {
   if (!_.isObject(data)) {
     return data;
   }
-  const openIndent = buildIndent(depth);
-  const closeIndent = buildIndent(depth - 1);
   const nestedProperties = Object.entries(data)
-    .map(([name, value]) => `\n${openIndent}${name}: ${formatNestedProp(value, depth + 1)}`).join('');
-  return `${openBracket}${nestedProperties}\n${closeIndent}${closeBracket}`;
+    .map(([name, value]) => `\n${genIndent(depth)}${name}: ${formatNestedProp(value, depth + 1)}`).join('');
+  return `{${nestedProperties}\n${genIndent(depth - 1)}}`;
 };
 
 const formatStylish = (astTree) => {
@@ -29,25 +19,25 @@ const formatStylish = (astTree) => {
     const {
       key, nodeType, value1, value2, children,
     } = ast;
-    const indent = buildIndent(depth, flag[nodeType].length);
+    const indent = genIndent(depth, flags[nodeType]);
 
     switch (nodeType) {
       case 'nested':
-        return `${indent}${key}: ${openBracket}\n${children.map((a) => iter(a, depth + 1)).join('')}${indent}${closeBracket}\n`;
+        return `${indent}${key}: {\n${children.map((a) => iter(a, depth + 1)).join('')}${indent}}\n`;
 
       case 'changed':
-        return `${indent}${flag[nodeType].before}${key}: ${formatNestedProp(value1, depth + 1)}\n${indent}${flag[nodeType].after}${key}: ${formatNestedProp(value2, depth + 1)}\n`;
+        return `${genIndent(depth, flags.deleted)}${key}: ${formatNestedProp(value1, depth + 1)}\n${genIndent(depth, flags.added)}${key}: ${formatNestedProp(value2, depth + 1)}\n`;
 
       case 'added':
-        return `${indent}${flag[nodeType]}${key}: ${formatNestedProp(value2, depth + 1)}\n`;
+        return `${indent}${key}: ${formatNestedProp(value2, depth + 1)}\n`;
 
       case 'deleted':
       case 'unchanged':
-        return `${indent}${flag[nodeType]}${key}: ${formatNestedProp(value1, depth + 1)}\n`;
+        return `${indent}${key}: ${formatNestedProp(value1, depth + 1)}\n`;
       default:
         throw new Error(`Unexpected nodeType: ${nodeType}`);
     }
   };
-  return `${openBracket}\n${astTree.map((node) => iter(node)).join('')}${closeBracket}\n`;
+  return `{\n${astTree.map((node) => iter(node)).join('')}}\n`;
 };
 export default formatStylish;

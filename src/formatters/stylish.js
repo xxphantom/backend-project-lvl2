@@ -4,14 +4,14 @@ const flags = {
   deleted: '- ',
   added: '+ ',
 };
-const genIndent = (depth, flag = '', indentStep = 4) => `${' '.repeat(depth * indentStep - flag.length)}${flag}`;
-const formatNestedProp = (data, depth) => {
-  if (!_.isObject(data)) {
-    return data;
+const genIndent = (depth, flagLength = 2, step = 4) => ' '.repeat(depth * step - flagLength);
+const formatNode = (key, body, depth, flag = '  ') => {
+  if (!_.isPlainObject(body)) {
+    return `${genIndent(depth)}${flag}${key}: ${body}\n`;
   }
-  const nestedProperties = Object.entries(data)
-    .map(([name, value]) => `\n${genIndent(depth)}${name}: ${formatNestedProp(value, depth + 1)}`).join('');
-  return `{${nestedProperties}\n${genIndent(depth - 1)}}`;
+  const nestedProperties = Object.entries(body)
+    .map(([nestedkey, value]) => formatNode(nestedkey, value, depth + 1, flags.nested)).join('');
+  return `${genIndent(depth)}${flag}${key}: {\n${nestedProperties}${genIndent(depth, 0)}}\n`;
 };
 
 const formatStylish = (astTree) => {
@@ -19,25 +19,25 @@ const formatStylish = (astTree) => {
     const {
       key, nodeType, value1, value2, children,
     } = ast;
-    const indent = genIndent(depth, flags[nodeType]);
 
     switch (nodeType) {
       case 'nested':
-        return `${indent}${key}: {\n${children.map((a) => iter(a, depth + 1)).join('')}${indent}}\n`;
+        return `${genIndent(depth, 0)}${key}: {\n${children.map((a) => iter(a, depth + 1)).join('')}${genIndent(depth, 0)}}\n`;
 
       case 'changed':
-        return `${genIndent(depth, flags.deleted)}${key}: ${formatNestedProp(value1, depth + 1)}\n${genIndent(depth, flags.added)}${key}: ${formatNestedProp(value2, depth + 1)}\n`;
+        return `${formatNode(key, value1, depth, flags.deleted)}${formatNode(key, value2, depth, flags.added)}`;
 
       case 'added':
-        return `${indent}${key}: ${formatNestedProp(value2, depth + 1)}\n`;
+        return formatNode(key, value2, depth, flags[nodeType]);
 
       case 'deleted':
+        return formatNode(key, value1, depth, flags[nodeType]);
+
       case 'unchanged':
-        return `${indent}${key}: ${formatNestedProp(value1, depth + 1)}\n`;
+        return formatNode(key, value1, depth);
       default:
         throw new Error(`Unexpected nodeType: ${nodeType}`);
     }
   };
   return `{\n${astTree.map((node) => iter(node)).join('')}}\n`;
-};
-export default formatStylish;
+}; export default formatStylish;

@@ -11,8 +11,8 @@ const formatNestedProp = (body) => {
   return _.isObject(body) ? ' [complex value]' : ` ${body}`;
 };
 
-const formatPlain = (astTree) => {
-  const iter = (ast, parentKey = '') => ast.flatMap((node) => {
+const formatPlain = (ast) => {
+  const iter = (tree, parentKey = '') => tree.flatMap((node) => {
     const {
       key, nodeType, value1, value2, children,
     } = node;
@@ -20,19 +20,19 @@ const formatPlain = (astTree) => {
 
     switch (nodeType) {
       case 'unchanged':
-        return '';
+        return [];
       case 'nested':
-        return iter(children, `${chainNodeNames}`).join('');
+        return iter(children, `${chainNodeNames}`);
       case 'changed':
-        return `Property '${chainNodeNames}' was updated. From${formatNestedProp(value1)} to${formatNestedProp(value2)}\n`;
+        return `Property '${chainNodeNames}' was updated. From${formatNestedProp(value1)} to${formatNestedProp(value2)}`;
       case 'deleted':
-        return `Property '${chainNodeNames}' was ${flags[nodeType]}\n`;
+        return `Property '${chainNodeNames}' was ${flags[nodeType]}`;
       case 'added':
-        return `Property '${chainNodeNames}' was ${flags[nodeType]}${formatNestedProp(value2)}\n`;
+        return `Property '${chainNodeNames}' was ${flags[nodeType]}${formatNestedProp(value2)}`;
       default:
         throw new Error(`Unexpected nodeType: ${nodeType}`);
     }
   });
-  return iter(astTree).join('').trim();
+  return iter(ast).join('\n').trim();
 };
 export default formatPlain;

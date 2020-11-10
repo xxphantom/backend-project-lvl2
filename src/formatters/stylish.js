@@ -14,8 +14,8 @@ const formatNode = (key, body, depth, flag = '  ') => {
   return [`${genIndent(depth)}${flag}${key}: {`, ...nestedProperties, `${genIndent(depth, 0)}}`].join('\n');
 };
 
-const formatStylish = (astTree) => {
-  const iter = (ast, depth = 1) => ast.flatMap((node) => {
+const formatStylish = (ast) => {
+  const iter = (tree, depth = 1) => tree.flatMap((node) => {
     const {
       key, nodeType, value1, value2, children,
     } = node;
@@ -41,5 +41,5 @@ const formatStylish = (astTree) => {
         throw new Error(`Unexpected nodeType: ${nodeType}`);
     }
   });
-  return `{\n${iter(astTree).join('\n')}\n}`;
+  return `{\n${iter(ast).join('\n')}\n}`;
 }; export default formatStylish;
